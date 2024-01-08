@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Blog Index</title>
+</head>
+<body>
+
+<h1>Blogs</h1>
+
+{% if blogs %}
+  <ul>
+      {% for blog in blogs %}
+          <li>
+              <strong>Name: </strong>{{ blog.name }}<br>
+              <strong>Author: </strong> {{ blog.author }}<br>
+              <strong>url: </strong> {{ blog.url }}<br>
+              <strong>Created at </strong> {{ blog.year }} <strong>by </strong> {{ blog.user.username }}<br>
+          </li>
+      {% endfor %}
+  </ul>
+{% else %}
+  <p>No blogs available.</p>
+{% endif %}
+
+<p><a href="{% url 'create_blog' %}">Create a New Blog</a></p>
+
+{% if user.is_authenticated %}
+  <p>logged in as {{ user.username }}</p>
+  <form action="{% url 'logout' %}" method="post">
+    {% csrf_token %}
+    <button type="submit">Logout</button>
+  </form>
+{% endif %}
+
+</body>
+</html>
