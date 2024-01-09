@@ -1,0 +1,48 @@
+{% extends 'blogs/base.html' %}
+
+{% block content %}
+    <h2>{{ blog.name }}</h2>
+    <p><strong>Author:</strong> {{ blog.author }}</p>
+    <p><strong>URL:</strong> {{ blog.url }}</p>
+    <p><strong>Created at:</strong> {{ blog.year }} <strong>by</strong> {{ blog.user.username }}</p>
+
+    {% if comments %}
+        <h3>Comments</h3>
+        <ul>
+            {% for comment in comments %}
+                <li>
+                    <strong>{{ comment.user.username }}:</strong> {{ comment.content }} ({{ comment.created_at }})
+                    {% if user.is_superuser %}
+                        <form method="post" action="{% url 'detail' blog_id=blog.id %}">
+                            {% csrf_token %}
+                            <input type="hidden" name="delete_comment" value="{{ comment.id }}">
+                            <button type="submit" style="color: white; background-color: red;">Delete Comment</button>
+                        </form>
+                    {% endif %}
+                </li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p>No comments yet.</p>
+    {% endif %}
+
+    {% if user.is_authenticated %}
+        <h3>Add a Comment</h3>
+        <form method="post" action="{% url 'detail' blog_id=blog.id %}">
+            {% csrf_token %}
+            {{ comment_form.as_p }}
+            <button type="submit">Add Comment</button>
+        </form>
+    {% else %}
+        <p><a href="{% url 'login' %}">Log in</a> to add comments!</p>
+    {% endif %}
+
+    {% if user.is_authenticated and user.is_superuser %}
+        <form method="post" action="{% url 'detail' blog_id=blog.id %}">
+            {% csrf_token %}
+            <br><button type="submit" name="delete_blog" style="color: white; background-color: red;">Delete Blog</button>
+        </form>
+    {% endif %}
+    <br>
+    <a href="{% url 'index' %}">Back to blog list</a>
+{% endblock %}

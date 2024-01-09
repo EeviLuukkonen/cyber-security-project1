@@ -1,6 +1,14 @@
-<h2>Login</h2>
-<form method="post">
-  {% csrf_token %}
-  {{ form.as_p }}
-  <button type="submit">Login</button>
-</form>
+{% extends 'blogs/base.html' %}
+
+{% block content %}
+  <h2>Login</h2>
+  <section>
+    <form method="post">
+      {% csrf_token %}
+      {{ form.as_p }}
+      <button type="submit">Login</button>
+    </form>
+  </section>
+  <br>
+  <a href="{% url 'index' %}">Back to bloglist</a>
+{% endblock %}
