@@ -11,7 +11,8 @@
         <ul>
             {% for comment in comments %}
                 <li>
-                    <strong>{{ comment.user.username }}:</strong> {{ comment.content }} ({{ comment.created_at }})
+                    <strong>{{ comment.user.username }}:</strong> {{ comment.content|safe }} ({{ comment.created_at }})
+                    <!--FLAW 5 XSS, FIX: <strong>{{ comment.user.username }}:</strong> {{ comment.content }} ({{ comment.created_at }})-->
                     {% if user.is_superuser %}
                         <form method="post" action="{% url 'detail' blog_id=blog.id %}">
                             {% csrf_token %}

@@ -6,7 +6,7 @@ body {
 }
 
 header {
-  background-color: #333;
+  background-color: #350a3a;
   color: #fff;
   text-align: center;
   padding: 10px;
@@ -40,7 +40,7 @@ a {
 }
 
 button {
-  background-color: #007BFF;
+  background-color: #350a3a;
   color: #fff;
   padding: 10px;
   border: none;

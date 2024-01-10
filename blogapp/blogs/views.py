@@ -2,11 +2,13 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.template import loader
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
+from django.utils import timezone
 
 # Create your views here.
 from django.http import HttpResponse
 from .models import Blog, Comment
-from .forms import BlogForm, CommentForm
+from .forms import CommentForm
+from django.db import connection
 
 def index(request):
     blogs = Blog.objects.all()
@@ -17,16 +19,21 @@ def index(request):
 @login_required
 def create_blog(request):
     if request.method == 'POST':
-        form = BlogForm(request.POST)
-        if form.is_valid():
-            new_blog = form.save(commit=False)
-            new_blog.user = request.user  # Set the current user as the blog owner
-            new_blog.save()
-            return redirect('index')
-    else:
-        form = BlogForm()
+        name = request.POST.get('name')
+        author = request.POST.get('author')
+        url = request.POST.get('url')
 
-    return render(request, 'blogs/create_blog.html', {'form': form})
+        # FLAW 1 SQL INJECTION:
+        query = f"INSERT INTO blogs_blog (name, author, year, url, user_id) VALUES ('{name}', '{author}', '{timezone.now()}', '{url}', {request.user.id});"
+        with connection.cursor() as cursor:
+            cursor.execute(query)
+
+        # here is a fix to the SQL vulnerability:
+        # new_blog = Blog(name=name, author=author, year=timezone.now(), url=url, user=request.user)
+        # new_blog.save()
+        return redirect('index')
+    else:
+        return render(request, 'blogs/create_blog.html')
 
 def detail(request, blog_id):
     blog = get_object_or_404(Blog, pk=blog_id)
@@ -35,16 +42,22 @@ def detail(request, blog_id):
     if request.method == 'POST':
         print(request.POST)
         if 'delete_blog' in request.POST:
-            print("delete blog submitted")
-            if request.user.is_superuser:
-                blog.delete()
-                messages.success(request, f'Blog {blog.name} deleted successfully.')
-                return redirect('index')
-            else:
-                messages.error(request, 'You do not have permission to delete this blog.')
-
+            # FLAW 4: BROKEN ACCESS CONTROL
+            blog.delete()
+            messages.success(request, f'Blog {blog.name} deleted successfully.')
+            '''
+            FLAW 4 FIX:
+                if 'delete_blog' in request.POST:
+                    print("delete blog submitted")
+                    if request.user.is_superuser:
+                        blog.delete()
+                        messages.success(request, f'Blog {blog.name} deleted successfully.')
+                        return redirect('index')
+                    else:
+                        messages.error(request, 'You do not have permission to delete this blog.')
+            '''
+            return redirect('index')
         elif 'content' in request.POST:
-            print("comment form submitted!")
             comment_form = CommentForm(request.POST)
             if comment_form.is_valid():
                 new_comment = comment_form.save(commit=False)
@@ -52,7 +65,6 @@ def detail(request, blog_id):
                 new_comment.user = request.user
                 new_comment.save()
                 return redirect('detail', blog_id=blog_id)
-            
         elif 'delete_comment' in request.POST:
             if request.user.is_superuser:
                 comment_id = request.POST.get('delete_comment')
