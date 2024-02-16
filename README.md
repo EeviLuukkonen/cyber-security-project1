@@ -53,19 +53,13 @@ To fix the vulnerability, when in production, the debug mode should always be se
 
 ### FLAW 3: CSRF
 
-[Link to flaw 3](https://github.com/EeviLuukkonen/cyber-security-project1/blob/99912fcd8b924f918474053c59db99bb7cfa69c9/blogapp/blogs/templates/blogs/login.html#L7)
+[Link to flaw 3](https://github.com/EeviLuukkonen/cyber-security-project1/blob/2b1f1af3f72e7f6ac9ce55ab129200ada16d7b93/blogapp/blogs/views.py#L19)
 
-Cross-Site Request Forgery is a security flaw that can lead to a user unknowingly sending requests to other web applications. By clicking the login button on a form with no CSRF token, the user can e.g. make unwanted financial transactions or send their private information to an attacker.
+Cross-Site Request Forgery is a security flaw that can lead to a user unknowingly sending requests to other web applications. User can e.g. make unwanted financial transactions or send their private information to an attacker.
 
-In Django, when a html form has the following line:
+Django automatically prevents CSRF from happening. It checks that all form submissions come from the same site that rendered the form. The programmer only has to make sure that a form has CSRF-token present.
 
-```
-{% csrf_token %}
-```
-
-the form is safe from CSRF attacks. Now, when a user presses login in this app, the request includes an associated CSRF token that makes sure that the user is legitimate and not malicious. Server rejects the request if the token doesn’t match.
-
-Note that the browser seems to demand the use of csrf token, so logging in does not work unless the |save command is removed from the code.
+That is why this flaw is implemented by adding @csrf_exempt to create_blog. This disables the automatic protection, making blog creation vulnerable for CSRF attack. To fix this flaw, remove the @csrf_exempt and use token in the form. This could also be achieved by manually checking that the user token and form token match, but Django's automation makes the fix easy.
 
 
 ### FLAW 4: BROKEN ACCESS CONTROL
