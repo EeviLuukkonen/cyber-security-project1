@@ -57,10 +57,9 @@ To fix the vulnerability, when in production, the debug mode should always be se
 
 Cross-Site Request Forgery is a security flaw that can lead to a user unknowingly sending requests to other web applications. User can e.g. make unwanted financial transactions or send their private information to an attacker.
 
-Django automatically prevents CSRF from happening. It checks that all form submissions come from the same site that rendered the form. The programmer only has to make sure that a form has CSRF-token present.
+Django automatically prevents CSRF from happening. It checks that all form submissions come from the same site that rendered the form. The programmer only has to make sure that a form template has CSRF-token.
 
-That is why this flaw is implemented by adding @csrf_exempt to create_blog. This disables the automatic protection, making blog creation vulnerable for CSRF attack. To fix this flaw, remove the @csrf_exempt and use token in the form. This could also be achieved by manually checking that the user token and form token match, but Django's automation makes the fix easy.
-
+That is why this flaw is implemented by adding @csrf_exempt to create_blog. This disables Django's automatic protection, making blog creation vulnerable for a CSRF attack. To fix this flaw, remove the @csrf_exempt line and use token in the form template. Another solution would be to manually check that a session token and form token match before creating the blog. However, Django makes the fix easier.
 
 ### FLAW 4: BROKEN ACCESS CONTROL
 [Link to flaw 4](https://github.com/EeviLuukkonen/cyber-security-project1/blob/99912fcd8b924f918474053c59db99bb7cfa69c9/blogapp/blogs/views.py#L45)
