@@ -3,8 +3,7 @@ from django.template import loader
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.utils import timezone
-
-# Create your views here.
+from django.views.decorators.csrf import csrf_exempt
 from django.http import HttpResponse
 from .models import Blog, Comment
 from .forms import CommentForm
@@ -17,6 +16,9 @@ def index(request):
     return HttpResponse(template.render(context, request))
 
 @login_required
+# FLAW 2 CSRF:
+@csrf_exempt
+# REMOVE CSRF_EXEMPT TO FIX
 def create_blog(request):
     if request.method == 'POST':
         name = request.POST.get('name')

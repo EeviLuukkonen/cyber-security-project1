@@ -4,8 +4,7 @@
   <h2>Login</h2>
   <section>
     <form method="post">
-      <!-- FLAW 3 CSRF, FIX:
-      {% csrf_token %} -->
+      {% csrf_token %}
       {{ form.as_p }}
       <button type="submit">Login</button>
     </form>
